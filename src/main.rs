@@ -1,8 +1,6 @@
 use std::io::prelude::*;
-use image::{RgbImage, Rgb};
 use utils::vector::*;
 use utils::color::*;
-use utils::ray::*;
 use crate::utils::geometry::*;
 use crate::utils::camera::*;
 
