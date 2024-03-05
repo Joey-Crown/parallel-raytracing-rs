@@ -1,4 +1,5 @@
 use crate::utils::vector::Vec3;
+use num::clamp; 
 
 #[derive(Debug, Clone, Copy)]
 pub struct Color {
@@ -12,12 +13,12 @@ impl Color {
         }
     }
 
-    pub fn from_vec3_float(value: Vec3<f32>) -> Self {
+    pub fn from_vec3_float(value: Vec3<f32>, samples: u32) -> Self {
         Color {
             value: Vec3 {
-                x: (255.999 * value.x) as u8,
-                y: (255.999 * value.y) as u8,
-                z: (255.999 * value.z) as u8,
+                x: (256.0 * (value.x / (samples as f32)).clamp(0.0, 0.999)).clamp(0.0, 255.0) as u8,
+                y: (256.0 * (value.y / (samples as f32)).clamp(0.0, 0.999)).clamp(0.0, 255.0) as u8,
+                z: (256.0 * (value.z / (samples as f32)).clamp(0.0, 0.999)).clamp(0.0, 255.0) as u8,
             }
         }
     }
