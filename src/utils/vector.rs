@@ -1,5 +1,6 @@
-use std::ops::{Neg, Add, Mul, Div, Sub, Rem};
+use std::ops::{Neg, Add, Mul, Div, Sub, Rem, Range};
 use num::Float;
+use rand::Rng;
 
 pub trait Dot<RHS = Self> {
     type Output;
@@ -17,6 +18,25 @@ pub struct Vec3<T> {
 impl Vec3<f32> {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Vec3 { x, y, z }
+    }
+
+    pub fn random(r: Range<f32>) -> Vec3<f32> {
+        let mut rng = rand::thread_rng();
+
+        Vec3 { 
+            x: rng.gen_range(r.clone()),
+            y: rng.gen_range(r.clone()), 
+            z: rng.gen_range(r.clone())
+        }
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3<f32> {
+        loop {
+            let v = Vec3::random(-1.0..1.0);
+            if v.length() < 1.0 {
+                return v;
+            }
+        }
     }
 }
 
