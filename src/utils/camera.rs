@@ -38,7 +38,7 @@ impl Camera {
             direction: self.upper_left_corner + self.horizontal * u + self.vertical * v - self.origin}
     }
 
-    pub fn render(&self, world: &HittableList, image_width: u32, image_height: u32, samples_per_pixel: u32) -> () {
+    pub fn render(&self, world: &HittableList, image_width: u32, image_height: u32, samples_per_pixel: u32, max_depth: u64) -> () {
         let mut img = RgbImage::new(image_width, image_height);
 
         let pixel_delta_horizontal = self.horizontal / (image_width as f32);
@@ -61,7 +61,7 @@ impl Camera {
                     let v = ((y as f32) + rv) / ((image_height-1) as f32);
 
                     let ray = self.get_ray(u, v);
-                    pixel_color = ray_color_vec3_float(&ray, &world) + pixel_color;
+                    pixel_color = ray_color_vec3_float(&ray, &world, max_depth) + pixel_color;
                 }
                 //Average colors
                 let final_color = Color::from_vec3_float(pixel_color, samples_per_pixel);
@@ -88,9 +88,16 @@ pub fn ray_color(ray: &Ray, world: &HittableList, samples: u32) -> Color {
 }
 
 //Returns the ray's color but in the form of an f32 vec so it can be summed and then passed to ray_color for an anti-aliased clamped average
-pub fn ray_color_vec3_float(ray: &Ray, world: &HittableList) -> Vec3<f32> {
-    if let Some(rec) = world.hit(ray, 0.0, f32::INFINITY) {
-        return (rec.normal + Vec3::new(1.0, 1.0, 1.0)) * 0.5
+pub fn ray_color_vec3_float(ray: &Ray, world: &HittableList, depth: u64) -> Vec3<f32> {
+    if depth <= 0 {
+        //ray bounce limit hit
+        return Vec3:: new(0.0, 0.0, 0.0);
+    }
+
+    if let Some(rec) = world.hit(ray, 0.001, f32::INFINITY) {
+        let target = rec.p + rec.normal + Vec3::random_in_unit_sphere().normalise();
+        let r = Ray::new(rec.p, target - rec.p);
+        return (ray_color_vec3_float(&r, world, depth - 1)) * 0.5
     }
 
     let unit_direction = ray.direction.normalise();
