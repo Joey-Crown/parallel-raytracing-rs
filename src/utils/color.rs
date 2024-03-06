@@ -16,9 +16,9 @@ impl Color {
     pub fn from_vec3_float(value: Vec3<f32>, samples: u32) -> Self {
         Color {
             value: Vec3 {
-                x: (256.0 * (value.x / (samples as f32)).clamp(0.0, 0.999)).clamp(0.0, 255.0) as u8,
-                y: (256.0 * (value.y / (samples as f32)).clamp(0.0, 0.999)).clamp(0.0, 255.0) as u8,
-                z: (256.0 * (value.z / (samples as f32)).clamp(0.0, 0.999)).clamp(0.0, 255.0) as u8,
+                x: (256.0 * (value.x / (samples as f32)).sqrt().clamp(0.0, 0.999)) as u8,
+                y: (256.0 * (value.y / (samples as f32)).sqrt().clamp(0.0, 0.999)) as u8,
+                z: (256.0 * (value.z / (samples as f32)).sqrt().clamp(0.0, 0.999)) as u8,
             }
         }
     }
