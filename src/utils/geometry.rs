@@ -1,6 +1,10 @@
+use std::rc::Rc;
+use std::sync::Arc;
 use crate::utils::color::Color;
 use crate::utils::ray::Ray;
 use crate::utils::vector::{Dot, Vec3};
+use crate::utils::material;
+use crate::utils::material::Material;
 
 pub trait Hittable {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
@@ -9,6 +13,7 @@ pub trait Hittable {
 pub struct HitRecord {
     pub p: Vec3<f32>,
     pub normal: Vec3<f32>,
+    pub material: Option<Material>,
     pub t: f32,
     pub front_face: bool,
 }
@@ -21,11 +26,11 @@ impl HitRecord {
 }
 
 pub struct HittableList {
-    objects: Vec<Box<dyn Hittable>>
+    pub objects: Vec<Box<dyn Hittable + Sync + Send>>
 }
 
 impl HittableList {
-    pub fn new(list: Vec<Box<dyn Hittable>>) -> Self {
+    pub fn new(list: Vec<Box<dyn Hittable + Sync + Send>>) -> Self {
         HittableList { objects: list }
     }
 }
@@ -47,12 +52,12 @@ impl Hittable for HittableList {
 pub struct Sphere {
     pub center: Vec3<f32>,
     pub radius: f32,
-    pub color: Color,
+    pub material: Material,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3<f32>, radius: f32, color: Color) -> Self {
-        Sphere { center, radius, color }
+    pub fn new(center: Vec3<f32>, radius: f32, material: Material) -> Self {
+        Sphere { center, radius, material }
     }
 }
 
@@ -81,6 +86,7 @@ impl Hittable for Sphere {
         let p = r.at(root);
         let mut rec = HitRecord {
             p,
+            material: Some(self.material.clone()),
             normal: Vec3::new(0.0, 0.0, 0.0),
             t: root,
             front_face: false,

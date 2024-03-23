@@ -38,6 +38,45 @@ impl Vec3<f32> {
             }
         }
     }
+
+    pub fn random_in_unit_disk() -> Vec3<f32> {
+        let mut rng = rand::thread_rng();
+
+        loop {
+            let v = Vec3::new(
+                rng.gen_range(-1.0..1.0),
+                rng.gen_range(-1.0..1.0),
+                0.0
+            );
+            if v.length() < 1.0 {
+                return v;
+            }
+        }
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
+    }
+
+    pub fn reflect(&self, n: Vec3<f32>) -> Vec3<f32> {
+        *self - n * 2.0 * self.dot(n)
+    }
+
+    pub fn refract(&self, n: Vec3<f32>, etai_over_etat: f32) -> Vec3<f32> {
+        let cos_theta = (-*self).dot(n).min(1.0);
+        let r_out_perp = (*self + n * cos_theta) * etai_over_etat;
+        let r_out_parallel = n * -(1.0 - r_out_perp.length_squared()).abs().sqrt();
+        r_out_perp + r_out_parallel
+    }
+
+    pub fn cross(&self, other: Vec3<f32>) -> Vec3<f32> {
+        Vec3 {
+            x: self.y * other.z - self.z * other.y,
+            y: self.z * other.x - self.x * other.z,
+            z: self.x * other.y - self.y * other.x,
+        }
+    }
 }
 
 impl<T: Copy + Mul<Output = A>, A: Add<Output = A> + Float> Vec3<T> {
@@ -105,6 +144,18 @@ impl<T: Mul<S>, S: Copy> Mul<S> for Vec3<T> {
             x: self.x * scalar,
             y: self.y * scalar,
             z: self.z * scalar,
+        }
+    }
+}
+
+impl Mul<Vec3<f32>> for Vec3<f32> {
+    type Output = Vec3<f32>;
+
+    fn mul(self, rhs: Vec3<f32>) -> Vec3<f32> {
+        Vec3 {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
         }
     }
 }
