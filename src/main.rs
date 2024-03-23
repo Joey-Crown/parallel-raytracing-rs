@@ -1,33 +1,39 @@
 mod utils;
 
 use std::io::prelude::*;
+use std::rc::Rc;
+use std::sync::Arc;
 use utils::vector::*;
 use utils::color::*;
 use crate::utils::geometry::*;
 use crate::utils::camera::*;
+use crate::utils::material::*;
+use crate::utils::material::Material;
+use crate::utils::scene;
 
 fn main() {
     // Image
-    let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
-    let samples_per_pixel = 100;
-    let max_depth: u64 = 5;
+    let aspect_ratio = 3.0 / 2.0;
+    let fov = 20.0;
+    let image_width = 1200;
+    let samples_per_pixel = 500;
+    let max_depth: i32 = 5;
+    let output_file = "random_scene.png";
 
     let mut image_height = (image_width as f32 / aspect_ratio) as u32;
     image_height = if image_height < 1 { 1 } else { image_height };
 
-    // World
-    let world = HittableList::new(vec![
-        Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, Color::new(255,0,0))),
-        Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, Color::new(0,255,0)))
-
-    ]);
-
-    // Camera
-    let camera = Camera::new();
+    let (world, camera) = scene::random_scene(aspect_ratio, fov);
 
     // Render
-    camera.render(&world, image_width, image_height, samples_per_pixel, max_depth);
+    camera.render(
+        &world,
+        image_width,
+        image_height,
+        samples_per_pixel,
+        max_depth,
+        output_file
+    );
 
 }
 
