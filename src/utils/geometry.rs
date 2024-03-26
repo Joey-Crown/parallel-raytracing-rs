@@ -9,7 +9,7 @@ use crate::utils::material::Material;
 pub trait Hittable {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
 }
-
+#[derive(Clone)]
 pub struct HitRecord {
     pub p: Vec3<f32>,
     pub normal: Vec3<f32>,

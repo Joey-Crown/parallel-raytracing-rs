@@ -5,3 +5,4 @@ pub mod geometry;
 pub mod camera;
 pub(crate) mod material;
 pub mod scene;
+pub mod renderer;
